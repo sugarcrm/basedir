@@ -103,7 +103,7 @@ PHP_RINIT_FUNCTION(basedir)
         new_basedir[oblen] = ':';
         strcpy(new_basedir+oblen+1, SG(request_info).path_translated);
         localpath = strstr(SG(request_info).path_translated, SG(request_info).request_uri);
-        if(localpath) {
+        if(localpath && localpath[strlen(SG(request_info).request_uri)] == '\0') {
             new_basedir[oblen+1+(localpath-SG(request_info).path_translated)] = '\0';
         }
         zend_alter_ini_entry("open_basedir", sizeof("open_basedir"), new_basedir, strlen(new_basedir)+1, ZEND_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
