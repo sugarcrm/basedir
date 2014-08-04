@@ -1,0 +1,3 @@
+Module adds current document_root to open_basedir if open_basedir is set.
+
+basedir.enable=1 to enable, basedir.enable=0 to disable

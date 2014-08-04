@@ -95,7 +95,7 @@ PHP_MSHUTDOWN_FUNCTION(basedir)
  */
 PHP_RINIT_FUNCTION(basedir)
 {
-	if(PG(open_basedir) && *PG(open_basedir) && SG(request_info).path_translated && *SG(request_info).path_translated) {
+    if(BASEDIR_G(enabled) && PG(open_basedir) && *PG(open_basedir) && SG(request_info).path_translated && *SG(request_info).path_translated) {
         int oblen = strlen(PG(open_basedir));
         char *new_basedir = emalloc(oblen+2+strlen(SG(request_info).path_translated));
         char *localpath;
@@ -109,7 +109,7 @@ PHP_RINIT_FUNCTION(basedir)
         zend_alter_ini_entry("open_basedir", sizeof("open_basedir"), new_basedir, strlen(new_basedir)+1, ZEND_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
         efree(new_basedir);
     }
-	return SUCCESS;
+    return SUCCESS;
 }
 /* }}} */
 
