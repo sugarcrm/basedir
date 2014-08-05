@@ -24,7 +24,7 @@
 extern zend_module_entry basedir_module_entry;
 #define phpext_basedir_ptr &basedir_module_entry
 
-#define PHP_BASEDIR_VERSION "0.1.0" /* Replace with version number for your extension */
+#define PHP_BASEDIR_VERSION "0.0.1"
 
 #ifdef PHP_WIN32
 #	define PHP_BASEDIR_API __declspec(dllexport)
@@ -48,6 +48,8 @@ PHP_FUNCTION(confirm_basedir_compiled);	/* For testing, remove later. */
 
 ZEND_BEGIN_MODULE_GLOBALS(basedir)
 	zend_bool enabled;
+	char *    open_basedir;
+	char *    basedir_url_prefix;
 ZEND_END_MODULE_GLOBALS(basedir)
 
 #ifdef ZTS
