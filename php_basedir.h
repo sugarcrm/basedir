@@ -24,7 +24,7 @@
 extern zend_module_entry basedir_module_entry;
 #define phpext_basedir_ptr &basedir_module_entry
 
-#define PHP_BASEDIR_VERSION "0.0.1"
+#define PHP_BASEDIR_VERSION "0.0.2"
 
 #ifdef PHP_WIN32
 #	define PHP_BASEDIR_API __declspec(dllexport)

@@ -100,29 +100,30 @@ PHP_RINIT_FUNCTION(basedir)
 {
 	if(basedir_globals.enabled && SG(request_info).path_translated && *SG(request_info).path_translated) {
 		char *new_basedir;
-		int malloc_len, sblen;
+		int malloc_len, orig_basedir_len;
 
-		malloc_len = sblen = strlen(basedir_globals.open_basedir);
+		malloc_len = orig_basedir_len = strlen(basedir_globals.open_basedir);
+		if (orig_basedir_len > 0) malloc_len += 1; /* room for the ':' */
 
-		if (sblen > 0) malloc_len += 1;
-
-		malloc_len += strlen(SG(request_info).path_translated) + 1;
+		malloc_len += strlen(SG(request_info).path_translated) + 1; /* room for the trailing '\0' */
 		new_basedir = emalloc(malloc_len);
 
-		if (sblen > 0) {
-			strncpy(new_basedir, basedir_globals.open_basedir, sblen);
-			new_basedir[sblen] = ':';
-			sblen++;
-		}
-		strncpy(new_basedir + sblen, SG(request_info).path_translated, strlen(SG(request_info).path_translated));
+		strncpy(new_basedir, SG(request_info).path_translated, strlen(SG(request_info).path_translated));
+
 		char *localpath = strstr(SG(request_info).path_translated, SG(request_info).request_uri);
 		if(localpath) {
-			if (strstr(localpath, basedir_globals.basedir_url_prefix) == localpath) {
-					new_basedir[sblen + localpath + strlen(basedir_globals.basedir_url_prefix) - SG(request_info).path_translated] = '\0';
-				} else {
-				new_basedir[sblen + localpath - SG(request_info).path_translated] = '\0';
-			}
+			new_basedir[localpath - SG(request_info).path_translated] = '\0';
 		}
+
+		if (orig_basedir_len > 0) {
+			char * offset_ptr = new_basedir + strlen(new_basedir);
+			*offset_ptr = ':';
+			offset_ptr++;
+			strncpy(offset_ptr, basedir_globals.open_basedir, strlen(basedir_globals.open_basedir));
+			offset_ptr += strlen(basedir_globals.open_basedir);
+			*offset_ptr = '\0';
+		}
+
 		zend_alter_ini_entry("open_basedir", sizeof("open_basedir"), new_basedir, strlen(new_basedir)+1, ZEND_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
 		efree(new_basedir);
 	}
