@@ -3,7 +3,7 @@
   | Copyright (c) 1997-2014 SugarCRM                                     |
   +----------------------------------------------------------------------+
   | Authors: Stas Malyshev <smalyshev@sugarcrm.com>                      |
-  |          S. Zachariah Sprackett <zsprackett@sugarcrm.com             |
+  |          S. Zachariah Sprackett <zsprackett@sugarcrm.com>            |
   +----------------------------------------------------------------------+
 */
 
@@ -146,7 +146,7 @@ PHP_MINFO_FUNCTION(basedir)
 {
 	php_info_print_table_start();
 	php_info_print_table_row(2, "Status", basedir_globals.enabled ? "enabled" : "disabled");
-	php_info_print_table_row(2, "Description", "Append the current vhost to the PHP INI setting for open_basedir and late loads open_basedir.  Useful with NFS VirtualDocumentRoot Apache setups.");
+	php_info_print_table_row(2, "Description", "Prepend the current vhost to the PHP INI setting for open_basedir and late loads open_basedir.  Useful with VirtualDocumentRoot Apache setups, especially when they're hosted on NFS.");
 	php_info_print_table_row(2, "Version", PHP_BASEDIR_VERSION);
 	php_info_print_table_row(2, "Author", "SugarCRM Inc.");
 	php_info_print_table_row(2, "open_basedir", INI_STR("open_basedir"));
