@@ -98,7 +98,7 @@ PHP_MSHUTDOWN_FUNCTION(basedir)
  */
 PHP_RINIT_FUNCTION(basedir)
 {
-	if(basedir_globals.enabled && SG(request_info).path_translated && *SG(request_info).path_translated) {
+	if(BASEDIR_G(enabled) && SG(request_info).path_translated && *SG(request_info).path_translated && SG(request_info).request_uri) {
 		char *new_basedir;
 		int malloc_len, orig_basedir_len;
 
@@ -113,13 +113,13 @@ PHP_RINIT_FUNCTION(basedir)
 		char *localpath = strstr(SG(request_info).path_translated, SG(request_info).request_uri);
 		if(localpath) {
 			new_basedir[localpath - SG(request_info).path_translated] = '\0';
-		}
+	    }
 
 		if (orig_basedir_len > 0) {
 			char * offset_ptr = new_basedir + strlen(new_basedir);
 			*offset_ptr = ':';
 			offset_ptr++;
-			strcat(offset_ptr, BASEDIR_G(open_basedir));
+			strcpy(offset_ptr, BASEDIR_G(open_basedir));
 		}
 
 		zend_alter_ini_entry("open_basedir", sizeof("open_basedir"), new_basedir, strlen(new_basedir)+1, ZEND_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
