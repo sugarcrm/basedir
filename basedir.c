@@ -60,7 +60,7 @@ ZEND_GET_MODULE(basedir)
 PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("basedir.enabled", "0", PHP_INI_SYSTEM, OnUpdateBool, enabled, zend_basedir_globals, basedir_globals)
 	STD_PHP_INI_ENTRY("basedir.open_basedir", "", PHP_INI_SYSTEM, OnUpdateString, open_basedir, zend_basedir_globals, basedir_globals)
-	STD_PHP_INI_ENTRY("basedir.basedir_url_prefix", "", PHP_INI_SYSTEM, OnUpdateString, basedir_url_prefix, zend_basedir_globals, basedir_globals)
+	STD_PHP_INI_ENTRY("basedir.basedir_uri_component", "", PHP_INI_SYSTEM, OnUpdateString, basedir_uri_component, zend_basedir_globals, basedir_globals)
 PHP_INI_END()
 /* }}} */
 
@@ -70,7 +70,7 @@ static void php_basedir_init_globals(zend_basedir_globals *basedir_globals)
 {
 	basedir_globals->enabled = 0;
 	basedir_globals->open_basedir = NULL;
-	basedir_globals->basedir_url_prefix = NULL;
+	basedir_globals->basedir_uri_component = NULL;
 }
 /* }}} */
 
@@ -112,8 +112,31 @@ PHP_RINIT_FUNCTION(basedir)
 
 		char *localpath = strstr(SG(request_info).path_translated, SG(request_info).request_uri);
 		if(localpath) {
-			new_basedir[localpath - SG(request_info).path_translated] = '\0';
-	    }
+			int new_basedir_len = localpath - SG(request_info).path_translated;
+
+			int basedir_uri_component_len = strlen(BASEDIR_G(basedir_uri_component));
+			int localpath_len = strlen(localpath);
+			if (BASEDIR_G(basedir_uri_component)) {
+				int i;
+				/* 0 is the leading slash */
+				for (i = 1; i < localpath_len; i++) {
+					int j;
+					/* find path components */
+					for (j = 0; i+j < localpath_len; j++) {
+						if (localpath[i+j] == '/') {
+							break;
+						}
+					}
+					if (j == basedir_uri_component_len && !strncmp(BASEDIR_G(basedir_uri_component), &localpath[i], j)) {
+						new_basedir_len += i+j;
+						break;
+					} else {
+						i += j;
+					}
+				}
+			}
+			new_basedir[new_basedir_len] = '\0';
+		}
 
 		if (orig_basedir_len > 0) {
 			char * offset_ptr = new_basedir + strlen(new_basedir);
@@ -147,9 +170,10 @@ PHP_MINFO_FUNCTION(basedir)
 	php_info_print_table_row(2, "Description", "Prepend the current vhost to the PHP INI setting for open_basedir and late loads open_basedir.  Useful with VirtualDocumentRoot Apache setups, especially when they're hosted on NFS.");
 	php_info_print_table_row(2, "Version", PHP_BASEDIR_VERSION);
 	php_info_print_table_row(2, "Author", "SugarCRM Inc.");
+	php_info_print_table_colspan_header(2, "Request Details");
+	php_info_print_table_row(2, "_SERVER[\"REQUEST_URI\"]", SG(request_info).request_uri);
+	php_info_print_table_row(2, "_SERVER[\"SCRIPT_FILENAME\"]", SG(request_info).path_translated);
 	php_info_print_table_row(2, "open_basedir", INI_STR("open_basedir"));
-	php_info_print_table_row(2, "basedir.open_basedir", INI_STR("basedir.open_basedir"));
-	php_info_print_table_row(2, "basedir.basedir_url_prefix", INI_STR("basedir.basedir_url_prefix"));
 	php_info_print_table_end();
 
 	DISPLAY_INI_ENTRIES();
