@@ -101,17 +101,25 @@ PHP_RINIT_FUNCTION(basedir)
 	if(BASEDIR_G(enabled) && SG(request_info).path_translated && *SG(request_info).path_translated && SG(request_info).request_uri) {
 		char *new_basedir;
 		int malloc_len, orig_basedir_len;
+		char realpath_buff[PATH_MAX];
 
 		malloc_len = orig_basedir_len = strlen(BASEDIR_G(open_basedir));
 		if (orig_basedir_len > 0) malloc_len += 1; /* room for the ':' */
 
 		malloc_len += strlen(SG(request_info).path_translated) + 1; /* room for the trailing '\0' */
-		new_basedir = emalloc(malloc_len);
+		new_basedir = emalloc(malloc_len + PATH_MAX);
 
 		strcpy(new_basedir, SG(request_info).path_translated);
 
-		char *localpath = strstr(SG(request_info).path_translated, SG(request_info).request_uri);
-		if(localpath) {
+		char *path_info = sapi_getenv("PATH_INFO", sizeof("PATH_INFO")-1 TSRMLS_CC);
+		char *request_uri = strdup(SG(request_info).request_uri);
+		if (path_info) {
+			char *p = strstr(request_uri, path_info);
+			if (p) *p = '\0';
+		}
+
+		char *localpath = strstr(SG(request_info).path_translated, request_uri);
+		if (localpath) {
 			int new_basedir_len = localpath - SG(request_info).path_translated;
 
 			int basedir_uri_component_len = strlen(BASEDIR_G(basedir_uri_component));
@@ -121,7 +129,6 @@ PHP_RINIT_FUNCTION(basedir)
 				/* 0 is the leading slash */
 				for (i = 1; i < localpath_len; i++) {
 					int j;
-					/* find path components */
 					for (j = 0; i+j < localpath_len; j++) {
 						if (localpath[i+j] == '/') {
 							break;
@@ -136,7 +143,15 @@ PHP_RINIT_FUNCTION(basedir)
 				}
 			}
 			new_basedir[new_basedir_len] = '\0';
+			realpath(new_basedir, realpath_buff);
+			if (strcmp(new_basedir, realpath_buff)) {
+				new_basedir[new_basedir_len] = ':';
+				strcpy(&new_basedir[new_basedir_len+1],realpath_buff);
+			}
 		}
+
+		//fprintf(stderr, "path_translated: '%s' SG(request_info).request_uri: '%s' request_uri: '%s' basedir: '%s'\n", SG(request_info).path_translated, SG(request_info).request_uri, request_uri, new_basedir);
+		if (request_uri) free(request_uri);
 
 		if (orig_basedir_len > 0) {
 			char * offset_ptr = new_basedir + strlen(new_basedir);
