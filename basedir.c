@@ -93,6 +93,21 @@ PHP_MSHUTDOWN_FUNCTION(basedir)
 }
 /* }}} */
 
+/* Check if haystack ends with needle */
+static char *str_ends_with(const char *haystack, const char *needle)
+{
+		size_t hl = strlen(haystack);
+		size_t nl = strlen(needle);
+		if(nl >= hl) {
+			return NULL;
+		}
+		char *p = (char *)haystack + hl - nl;
+		if(strcmp(p, needle) == 0) {
+			return p;
+		}
+		return NULL;
+}
+
 /* Remove if there's nothing to do at request start */
 /* {{{ PHP_RINIT_FUNCTION
  */
@@ -112,13 +127,16 @@ PHP_RINIT_FUNCTION(basedir)
 		strcpy(new_basedir, SG(request_info).path_translated);
 
 		char *path_info = sapi_getenv("PATH_INFO", sizeof("PATH_INFO")-1 TSRMLS_CC);
-		char *request_uri = strdup(SG(request_info).request_uri);
+		char *request_uri = estrdup(SG(request_info).request_uri);
 		if (path_info) {
-			char *p = strstr(request_uri, path_info);
-			if (p) *p = '\0';
+			char *p = str_ends_with(request_uri, path_info);
+			/* request_info ends with path_info */
+			if(p) {
+				*p = '\0';
+			}
 		}
 
-		char *localpath = strstr(SG(request_info).path_translated, request_uri);
+		char *localpath = str_ends_with(SG(request_info).path_translated, request_uri);
 		if (localpath) {
 			int new_basedir_len = localpath - SG(request_info).path_translated;
 
@@ -151,7 +169,7 @@ PHP_RINIT_FUNCTION(basedir)
 		}
 
 		//fprintf(stderr, "path_translated: '%s' SG(request_info).request_uri: '%s' request_uri: '%s' basedir: '%s'\n", SG(request_info).path_translated, SG(request_info).request_uri, request_uri, new_basedir);
-		if (request_uri) free(request_uri);
+		if (request_uri) efree(request_uri);
 
 		if (orig_basedir_len > 0) {
 			char * offset_ptr = new_basedir + strlen(new_basedir);
@@ -186,8 +204,6 @@ PHP_MINFO_FUNCTION(basedir)
 	php_info_print_table_row(2, "Version", PHP_BASEDIR_VERSION);
 	php_info_print_table_row(2, "Author", "SugarCRM Inc.");
 	php_info_print_table_colspan_header(2, "Request Details");
-	php_info_print_table_row(2, "_SERVER[\"REQUEST_URI\"]", SG(request_info).request_uri);
-	php_info_print_table_row(2, "_SERVER[\"SCRIPT_FILENAME\"]", SG(request_info).path_translated);
 	php_info_print_table_row(2, "open_basedir", INI_STR("open_basedir"));
 	php_info_print_table_end();
 
