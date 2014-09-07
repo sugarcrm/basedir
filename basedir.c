@@ -126,16 +126,17 @@ PHP_RINIT_FUNCTION(basedir)
 
 		strcpy(new_basedir, SG(request_info).path_translated);
 
+		/* handle URLs like /index.php/foo/bar */
 		char *path_info = sapi_getenv("PATH_INFO", sizeof("PATH_INFO")-1 TSRMLS_CC);
 		char *request_uri = estrdup(SG(request_info).request_uri);
 		if (path_info) {
 			char *p = str_ends_with(request_uri, path_info);
-			/* request_info ends with path_info */
 			if(p) {
 				*p = '\0';
 			}
 		}
 
+		/* Strip the URL from the DocumentRoot */
 		char *localpath = str_ends_with(SG(request_info).path_translated, request_uri);
 		if (localpath) {
 			int new_basedir_len = localpath - SG(request_info).path_translated;
@@ -163,6 +164,7 @@ PHP_RINIT_FUNCTION(basedir)
 			new_basedir[new_basedir_len] = '\0';
 			realpath(new_basedir, realpath_buff);
 			if (strcmp(new_basedir, realpath_buff)) {
+				/* Add the realpath as well.  Smarty needs this */
 				new_basedir[new_basedir_len] = ':';
 				strcpy(&new_basedir[new_basedir_len+1],realpath_buff);
 			}
