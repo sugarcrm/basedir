@@ -29,3 +29,6 @@ The basedir module also keeps realpath cache enabled.  Realpath cache is normall
 
 The realpath cache is normally disabled to prevent a security issue.  Once a path has been cached, that file could be replaced with a link to a protected file.  While the protected file would not normally be accessable, with open_basedir enabled PHP believes that all cached paths are safe and have not been modified.
 
+## License
+
+[Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0 "Apache 2.0 License")
