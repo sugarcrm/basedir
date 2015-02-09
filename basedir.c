@@ -1,13 +1,9 @@
 /*
-  +----------------------------------------------------------------------+
-  | Copyright (c) 2014 SugarCRM                                          |
-  +----------------------------------------------------------------------+
-  | Authors: Stas Malyshev <smalyshev@sugarcrm.com>                      |
-  |          S. Zachariah Sprackett <zsprackett@sugarcrm.com>            |
-  +----------------------------------------------------------------------+
-*/
-
-/* $Id$ */
+ * Copyright (C) 2014, SugarCRM Inc.
+ *
+ *  This product is licensed by SugarCRM under the Apache License, Version 2.0 (the "License").
+ *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
