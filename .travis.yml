@@ -1,0 +1,30 @@
+language: php
+sudo: yes
+dist: trusty
+
+env:
+  - PHPVER="5.4.29"
+  - PHPVER="5.6.26"
+
+# This replaces the travis supplied phpbuild which defaults to ZTS enabled
+# builds.  Since we are replacing using the same config, we don't have to add
+# the env stuff.
+install:
+  - rm -rf ~/.phpenv
+  - sudo apt-get update
+  - sudo apt-get build-dep php5
+  - sudo apt-get install git libmcrypt-dev libreadline-dev
+  - curl -L http://git.io/phpenv-installer | bash
+  - travis_wait phpenv install "${PHPVER}"
+  - phpenv global "${PHPVER}"
+  - phpenv rehash
+
+before_script:
+  - php-config --extension-dir
+  - phpize
+  - ./configure
+  - make
+
+script:
+  - REPORT_EXIT_STATUS=1 NO_INTERACTION=1 make test
+
