@@ -14,7 +14,7 @@ env:
 install:
   - rm -rf ~/.phpenv
   - sudo apt-get update
-  - sudo apt depends mysql-server-5.5
+  - sudo apt-get depends mysql-server-5.5
   - sudo apt-get build-dep php5
   - sudo apt-get install git libmcrypt-dev libreadline-dev
   - curl -L http://git.io/phpenv-installer | bash
