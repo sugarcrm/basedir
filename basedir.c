@@ -247,7 +247,12 @@ static PHP_FUNCTION(basedir_calculate)
 {
 	char *new_basedir;
     char *path, *uri, *path_info, *component;
-    int path_len, uri_len, path_info_len, component_len;
+
+#if PHP_MAJOR_VERSION < 7
+   int path_len, uri_len, path_info_len, component_len;
+#else
+   size_t path_len, uri_len, path_info_len, component_len;
+#endif
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssss", &path, &path_len, &uri, &uri_len, &path_info, &path_info_len, &component, &component_len) == FAILURE) {
              return;
