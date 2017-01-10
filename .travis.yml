@@ -29,6 +29,7 @@ before_script:
   - phpize
   - ./configure
   - make
+  - sed -i.stock -e 's/run-tests\.php/run-tests.php --show-diff/' Makefile
 
 script:
   - REPORT_EXIT_STATUS=1 NO_INTERACTION=1 make test
