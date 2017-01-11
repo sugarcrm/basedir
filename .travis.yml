@@ -5,13 +5,18 @@ dist: trusty
 env:
   - PHPVER="5.4.29"
   - PHPVER="5.6.26"
+  - PHPVER="7.0.14"
+  - PHPVER="7.1.0"
 
 # This replaces the travis supplied phpbuild which defaults to ZTS enabled
 # builds.  Since we are replacing using the same config, we don't have to add
 # the env stuff.
 install:
   - rm -rf ~/.phpenv
+  - sudo apt-get clean
   - sudo apt-get update
+  - sudo apt-get purge --auto-remove mysql-client-5.6 mysql-client-core-5.6 mysql-server-5.6 mysql-server-core-5.6
+  - sudo rm -rf /var/lib/mysql
   - sudo apt-get build-dep php5
   - sudo apt-get install git libmcrypt-dev libreadline-dev
   - curl -L http://git.io/phpenv-installer | bash
@@ -24,6 +29,7 @@ before_script:
   - phpize
   - ./configure
   - make
+  - sed -i.stock -e 's/run-tests\.php/run-tests.php --show-diff/' Makefile
 
 script:
   - REPORT_EXIT_STATUS=1 NO_INTERACTION=1 make test

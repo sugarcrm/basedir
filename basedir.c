@@ -224,7 +224,17 @@ PHP_RINIT_FUNCTION(basedir)
 			strcpy(offset_ptr, BASEDIR_G(open_basedir));
 		}
 
-		zend_alter_ini_entry("open_basedir", sizeof("open_basedir"), new_basedir, strlen(new_basedir)+1, ZEND_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
+#if PHP_MAJOR_VERSION < 7
+        zend_alter_ini_entry("open_basedir", sizeof("open_basedir"), new_basedir, strlen(new_basedir)+1, ZEND_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
+#else
+        char * ini_key = "open_basedir";
+        zend_string * ini_key_zs = zend_string_init(ini_key, strlen(ini_key), 0);
+        zend_string * new_basedir_zs = zend_string_init(new_basedir, strlen(new_basedir), 0);
+        zend_alter_ini_entry(ini_key_zs, new_basedir_zs, ZEND_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
+        zend_string_release(ini_key_zs);
+        zend_string_release(new_basedir_zs);
+#endif
+
 		efree(new_basedir);
 	}
 	return SUCCESS;
@@ -237,7 +247,12 @@ static PHP_FUNCTION(basedir_calculate)
 {
 	char *new_basedir;
     char *path, *uri, *path_info, *component;
-    int path_len, uri_len, path_info_len, component_len;
+
+#if PHP_MAJOR_VERSION < 7
+   int path_len, uri_len, path_info_len, component_len;
+#else
+   size_t path_len, uri_len, path_info_len, component_len;
+#endif
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssss", &path, &path_len, &uri, &uri_len, &path_info, &path_info_len, &component, &component_len) == FAILURE) {
              return;
@@ -247,7 +262,12 @@ static PHP_FUNCTION(basedir_calculate)
     new_basedir[0] = '\0';
     calculate_basedir(path, uri, path_info, component, new_basedir);
     
+#if PHP_MAJOR_VERSION < 7
     RETURN_STRING(new_basedir, 0);
+#else
+    RETURN_STRING(new_basedir);
+#endif
+
 }
 /* }}} */
 
