@@ -1,5 +1,7 @@
 # SugarCRM Basedir
-
+Build Status
+------------
+[![Build Status](https://app.travis-ci.com/sugarcrm/basedir.svg?branch=master)](https://app.travis-ci.com/sugarcrm/basedir)
 ## Description
 
 The SugarCRM Basedir extension allows you to take take advantage of 
@@ -16,6 +18,11 @@ The basedir module also keeps realpath cache enabled.  Realpath cache is normall
     ./configure
     make
     make install
+
+## Building in docker
+
+    docker build -t basedir .
+    docker run basedir:latest
 
 ## Configuration Documentation
 
