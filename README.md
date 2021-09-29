@@ -1,5 +1,7 @@
 # SugarCRM Basedir
-
+Build Status
+------------
+[![Build Status](https://app.travis-ci.com/sugarcrm/basedir.svg?branch=master)](https://app.travis-ci.com/sugarcrm/basedir)
 ## Description
 
 The SugarCRM Basedir extension allows you to take take advantage of 

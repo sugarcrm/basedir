@@ -211,7 +211,7 @@ PHP_RINIT_FUNCTION(basedir)
 
 		strcpy(new_basedir, SG(request_info).path_translated);
 
-		char *path_info = sapi_getenv("PATH_INFO", sizeof("PATH_INFO")-1 TSRMLS_CC);
+		char *path_info = sapi_getenv("PATH_INFO", sizeof("PATH_INFO")-1);
 
         calculate_basedir(SG(request_info).path_translated, SG(request_info).request_uri, path_info, BASEDIR_G(basedir_uri_component), new_basedir);
 
@@ -254,7 +254,7 @@ static PHP_FUNCTION(basedir_calculate)
    size_t path_len, uri_len, path_info_len, component_len;
 #endif
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssss", &path, &path_len, &uri, &uri_len, &path_info, &path_info_len, &component, &component_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "ssss", &path, &path_len, &uri, &uri_len, &path_info, &path_info_len, &component, &component_len) == FAILURE) {
              return;
     }
      
