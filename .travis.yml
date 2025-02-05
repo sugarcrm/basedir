@@ -6,6 +6,7 @@ env:
   - PHPVER="7.3.14"
   - PHPVER="7.4.2"
   - PHPVER="8.0.0"
+  - PHPVER="8.4.1"
 
 # This replaces the travis supplied phpbuild which defaults to ZTS enabled
 # builds.  Since we are replacing using the same config, we don't have to add

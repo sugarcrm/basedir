@@ -1,34 +1,33 @@
-FROM amazonlinux:2
+FROM rockylinux:9
 
 ARG PHP_BUILD_DIR=/var/task
 ARG PHP_CONF_DIR=/etc/php.d
 ARG PHP_EXT_DIR=/usr/lib64/php/modules
 
-RUN yum clean all && \
-    yum -y upgrade && \
-    yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
-      https://rpms.remirepo.net/enterprise/remi-release-7.rpm \
-      re2c \
-      yum-utils && \
-    yum-config-manager --disable remi-safe && \
-    yum-config-manager --enable remi-php80 && \
-    yum-config-manager --setopt=remi-php80.priority=10 --save && \
-    yum -y install php-cli php-common php-devel && \
-    yum clean all
+RUN dnf -y update && \
+    dnf -y install dnf-plugins-core && \
+    dnf config-manager --set-enabled crb && \
+    dnf -y install curl wget tar gcc make libxml2-devel \
+                   bzip2 bzip2-devel libpng-devel libjpeg-devel \
+                   freetype-devel oniguruma-devel libzip-devel zlib-devel \
+                   --allowerasing
 
-#Extension install
-RUN mkdir -p ${PHP_EXT_DIR} && mkdir -p ${PHP_CONF_DIR}
+RUN dnf -y install https://rpms.remirepo.net/enterprise/remi-release-9.rpm && \
+    dnf module reset php -y && \
+    dnf module enable php:remi-8.4 -y && \
+    dnf -y install php php-cli php-devel php-pear
 
-#basedir
+RUN mkdir -p ${PHP_EXT_DIR} ${PHP_CONF_DIR}
+
 RUN mkdir -p ${PHP_BUILD_DIR}
 RUN cd ${PHP_BUILD_DIR} && \
     mkdir basedir
-COPY basedir.c basedir/
-COPY cache.php basedir/
-COPY config.m4 basedir/
-COPY php_basedir.h basedir/
-COPY tests basedir/
-RUN cd basedir && \
+COPY basedir.c ${PHP_BUILD_DIR}/basedir/
+COPY cache.php ${PHP_BUILD_DIR}/basedir/
+COPY config.m4 ${PHP_BUILD_DIR}/basedir/
+COPY php_basedir.h ${PHP_BUILD_DIR}/basedir/
+COPY tests ${PHP_BUILD_DIR}/basedir/
+RUN cd ${PHP_BUILD_DIR}/basedir && \
     phpize && \
     ./configure && \
     make && \
